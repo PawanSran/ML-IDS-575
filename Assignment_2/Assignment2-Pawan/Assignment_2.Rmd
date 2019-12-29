@@ -1,0 +1,348 @@
+---
+title: "Assignment-2"
+author: "Pawanjeet Kaur"
+date: "10/5/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+### Question 2: Compare the classification performance of linear regression and k– nearest neighbor classification on the zipcode data.In particular, consider only the 2’s and 3’s, and k = 1, 3, 5, 7 and 15. Show both the training and test error for each choice. The zipcode data are available from the book website www-stat.stanford.edu/ElemStatLearn.
+
+**Read training dataset**
+```{r readfile_2, echo=TRUE}
+zip <- as.matrix(read.table("/Users/pawanjeetkaur/Downloads/IDS-575- MachineLearning Core/Assignment_2/zip.train"))
+zip_test <- as.matrix(read.table("/Users/pawanjeetkaur/Downloads/IDS-575- MachineLearning Core/Assignment_2/zip.test"))
+
+#Pick data for 2 and 3's 
+data_2_3_digits <- which(zip[, 1] == 2 | zip[, 1] == 3)
+nrow(as.matrix(data_2_3_digits))
+
+#Pick data for 2 and 3's 
+data_2_3_digits_test <- which(zip_test[, 1] == 2 | zip_test[, 1] == 3)
+nrow(as.matrix(data_2_3_digits_test))
+
+dim(zip)
+summary(zip[,1])
+```
+
+**Divide training dataset in independent and dependent variables for knn**
+```{r test_train , echo=TRUE}
+data_full_train <- data.frame(zip[data_2_3_digits,])
+
+zip_X_train <- data_full_train[,-1]
+zip_Y_train <- data_full_train[,1]
+
+data_full_test <- data.frame(zip_test[data_2_3_digits_test,])
+
+zip_X_test <- data_full_test[,-1]
+zip_Y_test <- data_full_test[,1]
+```
+
+**Run multiple regression**
+```{r multipleREg_2 , echo=TRUE}
+lm_reg <- lm(V1 ~  . , data = data_full_train)
+#summary(lm_reg)
+```
+
+**Run prediction on training data**
+
+```{r run_pred , echo=TRUE}
+predict_output_train = sapply(predict(lm_reg , newdata = data_full_train), round)
+
+conf_matrix_train <- table(predict_output_train, zip_Y_train)
+
+# Accuracy of model test data
+accuracy_train = sum(diag(conf_matrix_train))/ sum(conf_matrix_train)
+accuracy_train
+
+error_train = 1-accuracy_train
+error_train
+```
+
+**Run prediction on test data**
+
+```{r run_pred_test , echo = TRUE}
+predict_output_test = sapply(predict(lm_reg , newdata = data_full_test ), round)
+conf_matrix_test <- table(predict_output_test, zip_Y_test)
+
+# Accuracy of model test data
+accuracy_test = sum(diag(conf_matrix_test))/ sum(conf_matrix_test)
+accuracy_test
+
+error_test = 1-accuracy_test
+error_test
+```
+
+**knn for k = 1**
+
+```{r knn_1 , echo=TRUE}
+library(class)
+
+knn_1 <- knn(zip_X_train, zip_X_test , cl = zip_Y_train , k=1, use.all = TRUE)
+
+conf_matrix_knn_1_test <- table(knn_1, zip_Y_test)
+accuracy_knn_1_test <- sum(diag(conf_matrix_knn_1_test))/ sum(conf_matrix_knn_1_test)
+accuracy_knn_1_test
+
+error_knn_1_test <- 1 - accuracy_knn_1_test
+error_knn_1_test
+
+knn_1_train <- knn(zip_X_train, zip_X_train , cl = zip_Y_train , k=1, use.all = TRUE)
+
+conf_matrix_knn_1_train <- table(knn_1_train, zip_Y_train)
+accuracy_knn_train_1 <- sum(diag(conf_matrix_knn_1_train))/ sum(conf_matrix_knn_1_train)
+accuracy_knn_train_1
+
+error_knn_1_train <- 1 - accuracy_knn_train_1
+error_knn_1_train
+```
+
+**knn for class 3**
+```{r knn_3 , echo=TRUE}
+knn_3 <- knn(zip_X_train, zip_X_test , cl = zip_Y_train , k=3, use.all = TRUE)
+
+conf_matrix_knn_3_test <- table(knn_3, zip_Y_test)
+accuracy_knn_3_test <- sum(diag(conf_matrix_knn_3_test))/ sum(conf_matrix_knn_3_test)
+accuracy_knn_3_test
+
+error_knn_3_test <- 1 - accuracy_knn_3_test
+error_knn_3_test
+
+knn_3_train <- knn(zip_X_train, zip_X_train , cl = zip_Y_train , k=3, use.all = TRUE)
+
+conf_matrix_knn_3_train <- table(knn_3_train, zip_Y_train)
+accuracy_knn_train_3 <- sum(diag(conf_matrix_knn_3_train))/ sum(conf_matrix_knn_3_train)
+accuracy_knn_train_3
+
+error_knn_3_train <- 1 - accuracy_knn_train_3
+error_knn_3_train
+```
+
+**knn for class 5**
+```{r knn_5 , echo=TRUE}
+knn_5 <- knn(zip_X_train, zip_X_test , cl = zip_Y_train , k=5, use.all = TRUE)
+
+conf_matrix_knn_5_test <- table(knn_5, zip_Y_test)
+accuracy_knn_5_test <- sum(diag(conf_matrix_knn_5_test))/ sum(conf_matrix_knn_5_test)
+accuracy_knn_5_test
+
+error_knn_5_test <- 1 - accuracy_knn_5_test
+error_knn_5_test
+
+knn_5_train <- knn(zip_X_train, zip_X_train , cl = zip_Y_train , k=5, use.all = TRUE)
+
+conf_matrix_knn_5_train <- table(knn_5_train, zip_Y_train)
+accuracy_knn_train_5 <- sum(diag(conf_matrix_knn_5_train))/ sum(conf_matrix_knn_5_train)
+accuracy_knn_train_5
+
+error_knn_5_train <- 1 - accuracy_knn_train_5
+error_knn_5_train
+```
+
+**knn for class 7**
+```{r knn_7 , echo=TRUE}
+knn_7 <- knn(zip_X_train, zip_X_test , cl = zip_Y_train , k=7, use.all = TRUE)
+
+conf_matrix_knn_7_test <- table(knn_7, zip_Y_test)
+accuracy_knn_7_test <- sum(diag(conf_matrix_knn_7_test))/ sum(conf_matrix_knn_7_test)
+accuracy_knn_7_test
+
+error_knn_7_test <- 1 - accuracy_knn_7_test
+error_knn_7_test
+
+knn_7_train <- knn(zip_X_train, zip_X_train , cl = zip_Y_train , k=7, use.all = TRUE)
+
+conf_matrix_knn_7_train <- table(knn_7_train, zip_Y_train)
+accuracy_knn_train_7 <- sum(diag(conf_matrix_knn_7_train))/ sum(conf_matrix_knn_7_train)
+accuracy_knn_train_7
+
+error_knn_7_train <- 1 - accuracy_knn_train_7
+error_knn_7_train
+```
+
+**knn for class 15**
+```{r knn_15 , echo=TRUE}
+knn_15 <- knn(zip_X_train, zip_X_test , cl = zip_Y_train , k=15, use.all = TRUE)
+
+conf_matrix_knn_15_test <- table(knn_15, zip_Y_test)
+accuracy_knn_15_test <- sum(diag(conf_matrix_knn_15_test))/ sum(conf_matrix_knn_15_test)
+accuracy_knn_15_test
+
+error_knn_15_test <- 1 - accuracy_knn_15_test
+error_knn_15_test
+
+knn_15_train <- knn(zip_X_train, zip_X_train , cl = zip_Y_train , k=15, use.all = TRUE)
+
+conf_matrix_knn_15_train <- table(knn_15_train, zip_Y_train)
+accuracy_knn_train_15 <- sum(diag(conf_matrix_knn_15_train))/ sum(conf_matrix_knn_15_train)
+accuracy_knn_train_15
+
+error_knn_15_train <- 1 - accuracy_knn_train_15
+error_knn_15_train
+```
+
+**Plot Errors**
+```{r plot_error, echo=TRUE}
+x_axis = c(1,3,5,7,15)
+y_axis_train = c(error_knn_1_train ,error_knn_3_train, error_knn_5_train,error_knn_7_train,error_knn_15_train)
+y_axis_test = c(error_knn_1_test ,error_knn_3_test, error_knn_5_test,error_knn_7_test,error_knn_15_test)
+
+plot_data = data.frame(x_axis, y_axis_test , y_axis_train)
+library(ggplot2)
+
+theme = theme(panel.grid=element_blank(),panel.background = element_blank(),
+              axis.line = element_line(colour = "black"))
+
+ggplot(plot_data , aes(x = x_axis, y = y_axis_test)) + geom_line(aes(col = "test_knn")) + xlim(c(0,16)) + ylim(c(0,0.05)) +
+  geom_line(y = y_axis_train, aes(col = "train_knn")) + 
+  geom_hline(size=1.5,linetype='dashed',aes(yintercept = error_test, col = "lm_test")) + 
+  geom_hline(aes(col = "lm_train", yintercept = error_train),size=1.5,linetype='dashed',) + 
+  scale_color_manual(name ="Labels", values = c(lm_test = "aquamarine4", lm_train = "aquamarine2", test_knn = "purple" , train_knn = "brown")) +
+  ggtitle("Error rate for linear regression vs knn") +
+  theme + xlab("K values") + ylab("Error rates") 
+```
+
+
+### Question 9: This question involves the use of multiple linear regression on the Auto data set.
+
+**Read dataset**
+```{r read_file_9, echo=TRUE}
+library(ISLR)
+data <- data.frame(Auto)
+
+dim(data)
+str(data)
+```
+
+### (a) Produce a scatterplot matrix which includes all of the variables in the data set.
+```{r scatterplot_9, echo=TRUE}
+pairs(data, col = "aquamarine4", upper.panel = NULL, main = "Scatterplot for Auto Dataset")
+```
+
+### (b) Compute the matrix of correlations between the variables using the function cor().  You will need to exclude the name variable, which is qualitative.
+```{r corelation_9 , echo = TRUE}
+cor(data[, -9])
+```
+
+### (c) Use the lm() function to perform a multiple linear regression with mpg as the response and all other variables except name as the predictors.
+
+```{r lm_9, echo=TRUE}
+lm_fit <- lm(mpg ~ ., data = data[,-9])
+summary(lm_fit)
+```
+
+### (c.i) Is there a relationship between the predictors and the response?
+```{r core_9, echo=TRUE}
+cor(data[, -9])[1,]
+```
+
+**Yes there is relationship b/w predictors and response. There is negative high corelation between mpg ~ weight ,displacement, cylinder and horsepower.Remaining fields have positive corelation with response variable mpg**
+
+### (c.ii)  Which predictors appear to have a statistically significant relationship to the response?
+
+**Predictors displacement, weight, year and origin appear to have statistically significant relationship to response based on the above regression output and p-value**
+
+### (c.iii) What does the coefficient for the year variable suggest?
+
+**Coefficient for the year is 0.75 i.e. with every unit increase increase in year, response variable mpg increases by 75 percent it has positive relationship with the response.**
+
+### (d) Use the plot() function to produce diagnostic plots of the linear regression fit.Comment on any problems you see with the fit. Do the residual plots suggest any unusually large outliers?Does the leverage plot identify any observations with unusually high leverage?
+
+```{r plot_d_9, echo=TRUE}
+plot(lm_fit , col = "aquamarine4")
+```
+
+**The residual vs Fitted plot displays some non-linearity in the data.The Normal Q-Q plot suggests that the residuals are roughly normal. The scale-location curve indicates the residuals to have a random spread along the range to predictors, hence, we can say that the residuals are roughly homoscedastic. The Residuals vs Leverage curve shows some mild outliers and a high-leverage point (point - 14)**
+
+### (e) Use the * and : symbols to fit linear regression models with interaction effects.Do any interactions appear to be statistically significant?
+
+```{r interaction_9, echo=TRUE}
+lm_fit_int <- lm(mpg ~ horsepower * displacement, data = data[,-9])
+summary(lm_fit_int)
+
+
+lm_fit_int_col <- lm(mpg ~ horsepower:displacement, data = data[,-9])
+summary(lm_fit_int_col)
+
+lm_fit_all <- lm(mpg ~ (.*.), data = data[,-9])
+summary(lm_fit_all)
+```
+
+**Few statistically significant interactions are displacement:year , acceleration:year and  acceleration:origin**
+
+### (f) Try a few different transformations of the variables, such as log(X), √X, X2. Comment on your findings
+
+```{r transform_9, echo=TRUE}
+lm_fit_f_part <- lm(mpg~  I(cylinders^2) + sqrt(displacement) + sqrt(horsepower) + log(weight) + 
+                   I(acceleration^2)  + year + origin , data = data[, -9])
+summary(lm_fit_f_part)
+```
+
+**Overall test seems to be stastically significant.Among transformations log of weight provides significant results.**
+
+### Question 15 Predict per capita crime rate using the other variables in this data set.In other words, per capita crime rate is the response, and the other variables are the predictors
+
+### (a) For each predictor, fit a simple linear regression model to predict the response.Describe your results. In which of the models is there a statistically significant association between the predictor and the response? Create some plots to back up your assertions.
+
+```{r simple_lr_15, echo=TRUE}
+library('MASS')
+
+run_lm <- function(x) {
+  lm_run <- lm(crim ~ x, data = Boston)
+  with(Boston, plot(x , crim, col = "aquamarine4"))
+  abline(lm_run)
+  print(summary(lm_run)$coefficients)
+  summary(lm_run)$coefficients[2,1]
+}
+
+df_output <- as.data.frame(colnames(Boston[,-1]))
+df_output <- cbind(df_output, sapply(Boston[,-1] , run_lm))
+```
+
+**All the predictors except chas are statistically significant**
+<br>
+
+### (b) Fit a multiple regression model to predict the response using all of the predictors. Describe your results. For which predictors can we reject the null hypothesis H0 : βj = 0?
+
+```{r multiple_lr_15,echo=TRUE}
+lm_multiple <- lm(crim ~ . , data = Boston)
+summary(lm_multiple)
+multiple_reg_coeff <- summary(lm_multiple)$coefficients[-1,1]
+
+df_out <- cbind(df_output,multiple_reg_coeff)
+colnames(df_out) <- c("predictors","single_reg_coeff" , "multiple_reg_coeff")
+
+plot(lm_multiple, col= "aquamarine4")
+```
+
+**Based on above regression results, we can reject ho for rad,zn, dis, black and medv**
+
+### (c) How do your results from (a) compare to your results from (b)?Create a plot displaying the univariate regression coefficients from (a) on the x-axis,and the multiple regression coefficients from (b) on the y-axis. That is, each predictor is displayed as a single point in the plot.Its coefficient in a simple linear regression model is shown on the x-axis,and its coefficient estimate in the multiple linear regression model is shown on the y-axis.
+
+```{r plot_reg_rltnshp, echo=TRUE}
+library(ggplot2)
+
+ggplot(data= df_out, aes(x=single_reg_coeff, y=multiple_reg_coeff)) + 
+  geom_point(aes(color = predictors)) + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), panel.background = element_blank(), axis.line = element_line(colour = "black")) + xlab("Univariate coefficients") + ylab("Mutlivariate coefficients") + ggtitle("Univariate VS Multivariate coefficient") 
+          
+```
+
+**In univariate chas was not statisitically significant but others were significant whereas in multivariate regression only zn, rad, dis, black and medv are significant**
+
+### (d) Is there evidence of non-linear association between any of the predictors and the response?To answer this question, for each predictor X, fit a model of the form Y = β0 +β1X +β2X2 +β3X3 +ε.
+
+```{r non_ln_15, echo=TRUE}
+run_lm <- function(x) {
+  lm_run_1 <- lm(crim ~ poly(x,3) , data = Boston)
+  summary(lm_run_1)
+}
+
+apply(Boston[,-4],2,run_lm)
+```
+
+**Based on output factor like zn, rm ,rad, tax,lstat the cubic transformation are not statistically significant but are significant at single and quadratic degree. Black is significant only at single degree Whereas inuds, nox,age,dis,ptratio ,medv are significant at 3 degree of polynomial.**
+
+

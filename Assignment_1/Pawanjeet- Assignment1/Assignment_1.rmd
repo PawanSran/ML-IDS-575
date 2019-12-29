@@ -1,0 +1,333 @@
+---
+title: "Assignment -1 "
+output: html_document
+author: "Pawanjeet Kaur"
+Date: September 22, 2019
+indent: True
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+### Question 5: What are the advantages and disadvantages of a very flexible (versus a less flexible) approach for regression or classification? Under what circumstances might a more flexible approach be preferred to a less flexible approach? When might a less flexible approach be preferred?
+
+**Answer:**<br>
+**Advantages:** A more flexible approach means high complexity which translates to less bias. For such approach the training error will be less. <br>
+**Disadvantages:** With a more flexible approach variance will increase and the test error might increase. In which case the we are overfitting the model.<br>
+<br>
+Restrictive i.e. more flexible models are much more interoperable. When inference is the goal, we prefer less flexible approach like linear methods. But when interoperability is main focus, we prefer more flexible approaches.
+<br>
+
+### Question 7: The table below provides a training data set containing six observations, three predictors, and one qualitative response variable.
+
+```{r table_generation, echo=FALSE}
+c2 <- c(0,2,0,0,-1,1)
+c3 <- c(3,0,1,1,0,1)
+c4 <- c(0,0,3,2,1,1)
+y <- c("Red","Red","Red","Red","Green","Green")
+
+library(knitr)
+library(kableExtra)
+
+dataSet = data.frame( X1 = c2, X2 = c3, X3 = c4, Y=y)
+kable(dataSet) %>% kable_styling(bootstrap_options = c("striped", "hover"), font_size =  10.5 , position = "center")
+```
+
+### Suppose we wish to use this data set to make a prediction for Y when X1 = X2 = X3 = 0 using K-nearest neighbors. 
+
+### i. Compute the Euclidean distance between each observation and the test point, X1 =X2 =X3 =0
+
+**Euclidean Distance:**
+
+```{r outputTable , echo = FALSE}
+c1 <- c(seq(1:6))
+c2 <- c("Sqrt ((0-0) ^2 + (0-3) ^2 +(0-0) ^2) = sqrt (9)", "Sqrt ((0-2) ^2 + (0-0) ^2 +(0-0) ^2) = sqrt (9)" , "Sqrt ((0-0) ^2 + (0-1) ^2 +(0-3) ^2) = sqrt (10)", "Sqrt ((0-0) ^2 + (0-1) ^2 +(0-2) ^2) = sqrt (5)", "Sqrt ((0-1) ^2 + (0-0) ^2 +(0-1) ^2) = sqrt (2)", "Sqrt ((0-1) ^2 + (0-1) ^2 +(0-1) ^2) = sqrt (3)" )
+y <- c(3,2,3.16,2.23,1.41,1.73)
+
+output = data.frame( "Observation" = c1, "Calculation" = c2, "Euclidiean distance" =y)
+
+kable(output) %>% kable_styling(bootstrap_options = c("striped", "hover"),font_size =  10.5 , position = "center")
+```
+
+### ii.	What is our prediction with K = 1? Why
+
+When K = 1, closest observation is at 1.41 i.e. 5th observation. So the predicted class for K=1 is Green.<br>
+<br>
+
+### iii.	What is our prediction with K = 3? Why?
+
+When K = 3, we take closest 3 values which are observation 5,6,2 which gives Green, Red and Red output of target variable. Hence, the predicted value with K = 3 is Red.
+
+### iv.	 If the Bayes decision boundary in this problem is highly non- linear, then would we expect the best value for K to be large or small? Why?
+
+As we know, when k is small the boundary of the problem is highly non-linear. Hence, we expect k to be small for given problem.<br>
+
+### Question 8
+### a)	the ‘read.csv()’ function to read the data into R
+```{r readcsv, echo=TRUE}
+#Read csv file
+college <- read.csv("~/Downloads/IDS-575- MachineLearning Core/Assignment_1/Question_8/College.csv")
+
+#check Row Names
+rownames(college)=college[,1]
+fix(college)
+head(college)
+```
+
+### b)	Look at the data using the fix() function. You should notice that the first column is just the name of each university. We don’t really want R to treat this as data. However, it may be handy to have these names for later. Try the following commands:
+```{r ReadData, echo=TRUE}
+#Eliminate First column
+college=college[,-1]
+fix(college)
+```
+
+### Question c
+### i.	Use the summary () function to produce a numerical summary of the variables in the data
+```{r summary, echo=TRUE}
+summary(college)
+```
+
+### ii.	Produce a scatterplot matrix of the first ten columns or variables of the data
+```{r scatterplots, echo=TRUE}
+pairs(college[,1:10])
+```
+
+### iii.	Produce side-by-side boxplots of Outstate versus Private
+```{r scatteplots, echo=TRUE}
+# produce side-by-side boxplots of Outstate versus Privat
+
+#using plot
+plot(college$Private,college$Outstate,xlab="Private",ylab = "Outstate")
+
+#using boxplot
+boxplot(Outstate~Private,data=college, xlab="Private",ylab = "Outstate")
+```
+
+
+```{r processData, echo=TRUE}
+#Divide universities into two groups based on whether or not 
+#the proportion of students coming from the top 10% of their high school classes exceeds 50 %.
+
+Elite = rep("No",nrow(college))
+Elite[college$Top10perc >50]="Yes"
+Elite=as.factor(Elite)
+college=data.frame(college ,Elite)
+
+summary(college)
+summary(Elite)
+```
+
+### iv.	Produce side-by-side boxplots of Outstate versus Elite
+```{r plots_1, echo=TRUE}
+#produce side-by-side boxplots of Outstate versus Elite
+plot(college$Elite,college$Outstate,xlab="Elite",ylab="Outstate")
+```
+
+### v.	Produce some histograms with differing numbers of bins for a few of the quantitative variables
+```{r plots, echo=TRUE}
+#produce some histograms with differing numbers of bins for a few of the quantitative variables
+par(mfrow=c(2,2))
+hist(college$Outstate,xlab = "outstate", main = "Outstate Frequency", breaks = 10)
+hist(college$Accept,xlab = "Accept", xlim=c(0,15000),breaks =seq(0,max(college$Accept),5), main = "Acceptance Frequency")
+hist(college$P.Undergrad,xlab = "P.undergrad", main = "Undergrad Frequency")
+hist(college$Books,xlab = "Books", main = "Books Frequency")
+```
+
+### vi.	Brief summary of what you discover?
+
+```{r analysis_1, echo=TRUE}
+str(college)
+summary(college$Grad.Rate)
+```
+
+From summary of dataset we can see graduation rate maximum value is **118** which seems weird as the percentage cannot be greater than 100.<br>
+
+```{r analysis_2, echo=TRUE}
+gradrate_max_data <- college[college$Grad.Rate == 118, ]
+nrow(gradrate_max_data)
+
+rownames(gradrate_max_data)
+```
+
+### Question 10: Boston Dataset
+
+### a)	How many rows are in this data set? How many columns? What do the rows and columns represent?
+```{r readData, echo=TRUE}
+library(MASS)
+?Boston
+
+head(Boston)
+Boston[1,]
+
+nrow(Boston)
+ncol(Boston)
+
+dim(Boston)
+summary(Boston)
+```
+
+Each row represents particular suburb(neighborhood) data from Boston city. Every column shows different factors showing the crime:<br>
+<br>
+crim:	per capita crime rate by town<br>
+zn	proportion of residential land zoned for lots over 25,000 sq. Ft<br>
+indus	proportion of non-retail business acres per town.<br>
+chas	Charles River dummy variable (= 1 if tract bounds river; 0 otherwise)<br>
+nox	nitrogen oxides concentration (parts per 10 million)<br>
+rm	average number of rooms per dwelling<br>
+age	proportion of owner-occupied units built prior to 1940<br>
+dis	weighted mean of distances to five Boston employment centers<br>
+rad	index of accessibility to radial highways<br>
+tax	full-value property-tax rate per \$10,000<br>
+ptratio	pupil-teacher ratio by town<br>
+black	1000(Bk - 0.63)^2 where Bk is the proportion of blacks by town<br>
+lstat	lower status of the population (percent)<br>
+medv	median value of owner-occupied homes in \$1000s<br>
+
+
+
+### b)	Pairwise scatterplots:
+
+crime	chas	nox	age
+``` {r scatterplots_1, echo= TRUE}
+?pairs
+pairs(~crim+chas+nox+age, data=Boston)
+```
+
+### Check Correlation between all variables
+
+**Are any of the predictors associated with per capita crime rate? If so, explain the relationship.**
+
+As the ‘proportion of houses with more age of property’ increases ‘crime rate per capita’ starts increasing from ‘20 to 30’ 
+As the nox(nitrogen oxide concentration) increases above 0.4, ‘crime per capita’ starts increasing and stops at 0.7
+When the suburb is bound by Charles river i.e. chas is 1, it has low crime per capita 
+
+### c)	Are any of the predictors associated with per capita crime rate? If so, explain the relationship. Based on correlation output, there is relationship between crim and other predictors
+
+``` {r correlation, echo = TRUE}
+?cor
+cor(Boston, use="everything")[1,]
+```
+
+### d)	Do any of the suburbs of Boston appear to have particularly high crime rates? Tax rates? Pupil-teacher ratios? Comment on the range of each predictor.
+
+``` {r summarising_plots , echo = TRUE}
+summary(Boston)
+
+#the suburbs of Boston appear to have particularly high crime rates? Tax rates? Pupil-teacher ratios?
+
+summary(Boston$crim)
+summary(Boston$tax)
+summary(Boston$ptratio)
+
+par(mfrow=c(2,2))
+
+hist(Boston$crim, main="Crime rates per capita in Boston Suburb",breaks= 5,xlab="crim rate", ylab="Number of suburb")
+hist(Boston$tax, main="Tax in Boston Suburb",breaks= 5,xlab="Full-value property-tax rate per $10,000", ylab="Number of suburb")
+hist(Boston$ptratio, main="Pupil-Teacher ratio in Boston Suburb",breaks= 5,xlab="Pupil-teacher ratio by town", ylab="Number of suburb")
+```
+
+Range for crim is 0.00632 to 88.97 with average of 3.6. i.e. average crim rate per capita in Boston is 3.6. 
+Median of crime rate is like 26% and maximum value to 89% approximately, some neighborhoods have high crime rate. Most of neighborhoods fall in 0-10 crime rate ratio
+
+From below output we can see,11% of houses have crime rate greater than 10%
+
+``` {r getSubset , echo = TRUE}
+#get summary of crime rates above 10 based on graph data 
+?subset
+selected_crime <- subset(Boston , Boston$crim > 10)
+nrow(selected_crime)/nrow(Boston)
+```
+
+Tax ranges between 187 to 711 with median 330 with average of 408.2 
+Based on graph: Majorly houses above tax between 300 to 500 
+ i.e. approx. 73% of houses have tax below 600 
+
+``` {r subsetTax , echo= TRUE}
+selected_tax <- subset(Boston, Boston$tax < 600)
+nrow(selected_tax)/nrow(Boston)
+```
+
+Ptratio ranges between 12.60 to 22 with average of 18.46 
+Based on graph:  There is linear graph between ptratio and number of houses i.e. a greater number of houses have more ptratio 
+
+Approx. 62% of houses have ptratio more than 18
+
+
+``` {r subsetptratio , echo= TRUE}
+selected_ptratio <- subset(Boston, Boston$ptratio >18)
+nrow(selected_ptratio)/nrow(Boston)
+```
+
+### e)	How many of the suburbs in this data set bound the Charles river? 
+
+``` {r boundByriver , echo= TRUE}
+summary(Boston$chas)
+hist(Boston$chas, main="Houses Bound by Charles river in Boston Suburb",xlab="Bound by charles river", ylab="Number of suburb")
+nrow(subset(Boston,Boston$chas == 1))
+```
+
+### f)	What is the median pupil-teacher ratio among the towns in this data set? 
+``` {r pupil-teacher , echo= TRUE}
+summary(Boston)
+```
+
+### g)	Which suburb of Boston has lowest median value of owner- occupied homes? What are the values of the other predictors for that suburb, and how do those values compare to the overall ranges for those predictors? Comment on your findings. 
+
+``` {r suburb, echo= TRUE}
+#suburb of Boston with lowest median value of owner- occupied homes
+attach(Boston)
+orderd_medv_values = Boston[order(Boston$medv),]
+orderd_medv_values[1,]
+detach(Boston)
+
+summary(Boston)
+selected_crime_2 <- subset(Boston ,Boston$crim < 40)
+nrow(selected_crime_2)/nrow(Boston)
+```
+
+medv -> median value of owner-occupied home. Suburb 399 has lowest “medv” value.
+
+**Values of other predictors are shown in table from R output:**
+**unordered list**
+•	Crime rate is 38.35 which is way higher than median value.
+•	Proportion of residential land zoned for lots over 25,000 sq. Ft is 0 which is equal to mean but less than the average value
+•	Proportion of non-retail business acres per town is 18.10 means higher than average and median lies at 3rd quartile
+•	Suburb is not bound by Charles river
+•	Nitrogen oxide concentration is 0.693 greater than median and average lies approx. at 3rd quartile
+•	Average number of rooms per dwelling is 5.453 which is less than average for all suburbs
+•	Proportion of owner-occupied units built prior to 1940 is 100 which is the maximum of all suburbs i.e. the maximum number of houses in this suburb are older than 1940
+•	weighted mean of distances to five Boston employment centers is 1.4896 less than the average suburbs.
+•	Index of accessibility to radial highways is 24 which is the maximum accessibility suburbs have to highways
+•	Full property tax rate per $10,000 is 666 which is higher than average suburb tax calculations and mostly lies in 3rd quartile
+•	Pupil-Teacher ratio is 20.2 which is greater than average and median of all suburbs and lies very close to maximum
+•	Suburb has 396.90 is the proportion of blacks in neighborhood which is the maximum what Boston neighborhoods have.
+•	30.59 percent is the lower state population which is very close to maximum value
+
+
+### h)	In this data set, how many of the suburbs average more than seven rooms per dwelling? More than eight rooms per dwelling? Comment on the suburbs that average more than eight rooms per dwelling. 
+
+``` {r rooms_average , echo= TRUE}
+#suburbs average more than seven rooms per dwelling
+suburbs_more_than_7 = subset(Boston, Boston$rm > 7)
+nrow(suburbs_more_than_7)
+
+#suburbs average more than seven rooms per dwelling
+suburbs_more_than_8 = subset(Boston, Boston$rm > 8)
+nrow(suburbs_more_than_8)
+summary(suburbs_more_than_8)
+```
+
+Summary of subset of dataset with average more than 8 rooms per dwelling (suburbs_more_than_8):
+
+``` {r summary_rooms, echo= TRUE}
+summary(suburbs_more_than_8)[4,]
+```
+
+Mean of complete dataset of Boston:
+
+``` {r mean_dataset, echo= TRUE}
+summary(Boston)[4,]
+```
+
+We can see the mean for crim, indus, rad, tax, ptratio, lstat has decreased from whole Boston dataset. And remaining fields mean has increased as we picked only suburbs with number of rooms per dwelling exceeds 8.

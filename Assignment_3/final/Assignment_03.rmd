@@ -1,0 +1,294 @@
+---
+title: "Assignment 3"
+author: "Pawanjeet Kaur"
+date: "10/25/2019"
+output:
+  html_document:
+    df_print: paged
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+### Problem 2: Ex. 14[a-f] (Chapter 3, page 125) [2pt]
+
+### This problem focuses on the collinearity problem.
+
+### (a) Perform the following commands in R: The last line corresponds to creating a linear model in which y is a function of x1 and x2. Write out the form of the linear model. What are the regression coefficients?
+
+```{r prob_14 , echo= TRUE}
+  set.seed(1)
+  x1=runif(100)
+  x2=0.5*x1+rnorm(100)/10
+  y=2+2*x1+0.3*x2+rnorm(100)
+```
+
+**The regression coefficients are β0 = 2+rnorm(100), β1 = 2 and β2 = 0.3**
+
+### (b) What is the correlation between x1 and x2? Create a scatterplot displaying the relationship between the variables.
+
+```{r cor_prob_14 , echo= TRUE}
+cor(x1, x2)
+plot(x1, x2)
+```
+
+### (c) Using this data, fit a least squares regression to predict y using x1 and x2. Describe the results obtained. What are βˆ0, βˆ1, and βˆ2? How do these relate to the true β0, β1, and β2? Can you reject the null hypothesis H0 : β1 = 0? How about the null hypothesis H0 : β2 = 0?
+
+```{r least_sq_prob_14 , echo = TRUE}
+lm_fit <- lm(y ~ x1 + x2)
+
+summary(lm_fit)
+```
+
+**βˆ1 is 1.4396 ,βˆ2 is 1.0097 , βˆ0 is 2.130. For βˆ1 we reject ho for ha. For β2 we cannot reject null hypothesis.**
+
+### (d) Now fit a least squares regression to predict y using only x1. Comment on your results. Can you reject the null hypothesis H0 :β1 =0?
+
+```{r least_least_sq_1_prob_14 , echo= TRUE}
+lm_fit_1 <- lm(y ~ x1)
+
+summary(lm_fit_1)
+```
+
+**As the p-value is less than alpha we can reject null hypothesis.**
+
+### (e) Now fit a least squares regression to predict y using only x2. Comment on your results. Can you reject the null hypothesis H0 :β1 =0?
+
+```{r , echo=TRUE}
+lm_fit_2 <- lm(y ~ x2)
+
+summary(lm_fit_2)
+```
+
+**As the p-value is less than alpha we can reject ho**
+
+### (f) Do the results obtained in (c)–(e) contradict each other? Explain your answer.
+
+**Yes the results in (c) to (e) contradict as we can see in part c we for β1 we rejected null hypothesis and for β2 we could not reject null hypothesis. Whereas in part d and e we rejected null hypothesis.**
+
+
+### Problem 3: Ex. 5 (Chapter 4, page 169) [1pt]
+
+### **We now examine the differences between LDA and QDA**
+
+### a) If the Bayes decision boundary is linear, do we expect LDA or QDA to perform better on the training set? On the test set?
+
+**In QDA on test data the bias will decrease hence, QDA will perform better than LDA.Whereas if the Bayes decision boundary is linear, we know LDA has linear decision boundary hence LDA will perform better than QDA.**
+
+### (b) If the Bayes decision boundary is non-linear, do we expect LDA or QDA to perform better on the training set? On the test set?
+
+**If bayes decision boundary is non linear, we can say QDA will perform better on both training and test sets**
+
+### (c) In general, as the sample size n increases, do we expect the test prediction accuracy of QDA relative to LDA to improve, decline, or be unchanged? Why?
+
+**With increase in the sample size the accuracy of QDA will improve.As we know with increase in sample size for non linear methods the bias will decrease along with the variance of models.**
+
+### (d) True or False: Even if the Bayes decision boundary for a given problem is linear, we will probably achieve a superior test error rate using QDA rather than LDA because QDA is flexible enough to model a linear decision boundary. Justify your answer.
+
+**False, for small value QDA is more prone to errors and add noise to model. Hence test errors in QDA will be high. So, LDA performs better in such scenario and given statement is false.**
+
+### Problem 4: Ex. 6 (Chapter 4, page 170) [1pt]
+
+```{r load_data, echo=TRUE}
+library(ISLR)
+dim(Weekly)
+str(Weekly)
+```
+
+### (a) Produce some numerical and graphical summaries of the Weekly data.Do there appear to be any patterns?
+
+```{r summarize, echo=TRUE}
+summary(Weekly)
+
+pairs(Weekly, upper.panel = NULL)
+
+# Corelation between different variables
+cor(Weekly[,-9])[1,]
+```
+
+**Volume is highly correlated with year**
+
+### (b) Use the full data set to perform a logistic regression with Direction as the response and the five lag variables plus Volume as predictors. Use the summary function to print the results.Do any of the predictors appear to be statistically significant? If so, which ones?
+
+```{r logisitic, echo=TRUE}
+log_fit <- glm(Direction ~ Lag1 + Lag2 + Lag3 + Lag4 + Lag5 + Volume, data = Weekly,family = "binomial")
+
+summary(log_fit)
+```
+
+**Lag2 is statisitically significant**
+
+### (c) Compute the confusion matrix and overall fraction of correct predictions.Explain what the confusion matrix is telling you about the types of mistakes made by logistic regression.
+
+```{r accuracy_logisitic, echo=TRUE}
+
+prediction <- predict(log_fit, type= "response")
+prediction <- ifelse(prediction >= 0.5, 'Up', 'Down')
+
+conf_matrix <- table(prediction , Weekly$Direction)
+
+accuracy_logistic_1 <- sum(diag(conf_matrix))/sum(conf_matrix)
+accuracy_logistic_1
+```
+
+### (d) Now fit the logistic regression model using a training data period from 1990 to 2008, with Lag2 as the only predictor.Compute the confusion matrix and the overall fraction of correct predictions for the held out data (that is, the data from 2009 and 2010).
+
+```{r logisitc_2,echo= TRUE}
+summary(Weekly$Year)
+
+train_data <- Weekly[Weekly$Year <= 2008,]
+test_data <- Weekly[Weekly$Year > 2008,]
+
+log_fit_2 <- glm(Direction ~ Lag2 , data = train_data , family = 'binomial')
+
+summary(log_fit_2)
+
+pred_log_fit_2 <- predict(log_fit_2, newdata = test_data , type = 'response')
+pred_log_fit_2 <- ifelse(pred_log_fit_2 >= 0.5 , 'Up', 'Down')
+pred_log_fit_2
+
+conf_matrix_2 <- table(pred_log_fit_2 , test_data$Direction)
+accuracy_logisitic_2 <- sum(diag(conf_matrix_2))/sum(conf_matrix_2)
+
+accuracy_logisitic_2
+```
+
+### (e) Repeat (d) using LDA.
+
+```{r lda_03 , echo=TRUE}
+require('MASS')
+
+lda_model <- lda(Direction ~ Lag2, data = train_data)
+
+summary(lda_model)
+
+pred_lda <- predict(lda_model, newdata = test_data)
+conf_matrix_3 <- table(pred_lda$class , test_data$Direction)
+
+accuracy_lda <- sum(diag(conf_matrix_3))/sum(conf_matrix_3)
+accuracy_lda
+```
+
+### (f) Repeat (d) using QDA.
+
+```{r qda_03, echo=TRUE}
+qda_model_10 <- qda(Direction ~ Lag2 , data = train_data)
+summary(qda_model_10)
+
+pred_qda <- predict(qda_model_10 , newdata = test_data)
+conf_matrix_4 <- table(pred_qda$class , test_data$Direction)
+accuracy_qda <- sum(diag(conf_matrix_4))/sum(conf_matrix_4)
+accuracy_qda
+```
+
+### (g) Repeat (d) using KNN with K = 1.
+
+```{r knn_03, echo=TRUE}
+require(class)
+knn_1 <- knn(train = data.frame(train_data$Lag2), test = data.frame(test_data$Lag2), cl = train_data$Direction , k=1)
+
+conf_matrix_5 <- table(knn_1 , test_data$Direction)
+conf_matrix_5
+
+accuracy_knn = sum(diag(conf_matrix_5))/sum(conf_matrix_5)
+accuracy_knn
+```
+
+### (h) Which of these methods appears to provide the best results on this data?
+
+```{r accuracy_print , echo=TRUE}
+# Accuracy of logisitic model with all variables
+accuracy_logistic_1
+
+# Accuracy of logisitic model with statisitically significant variables
+accuracy_logisitic_2
+
+# Accuracy of lda
+accuracy_lda
+
+# Accuracy of qda
+accuracy_qda
+
+# Accuracy of knn
+accuracy_knn
+```
+
+**The LDA model with Lag2 as its only predictor did the best.**
+
+### i) Experiment with different combinations of predictors, including possible transformations and interactions, for each of the methods. Report the variables, method, and associated confusion matrix that appears to provide the best results on the held out data. Note that you should also experiment with values for K in the KNN classifier.
+
+```{r experiment_test , echo=TRUE}
+glm_fit_transform <- glm( Direction ~ Lag2+I(Lag2^2)+I(Lag2^3),data = train_data, family = "binomial")
+summary(glm_fit_transform)
+
+pred_glm_fit_transf <- predict(glm_fit_transform, newdata = test_data , type = 'response')
+pred_glm_fit_transf <- ifelse(pred_glm_fit_transf >= 0.5 , 'Up', 'Down')
+
+conf_matrix_glm_transf <- table(pred_glm_fit_transf , test_data$Direction)
+accuracy_logisitic_glm_transf <- sum(diag(conf_matrix_glm_transf))/sum(conf_matrix_glm_transf)
+
+accuracy_logisitic_glm_transf
+```
+
+```{r exp_2, echo=TRUE}
+
+# Square Root
+glm_fit_sqrt <- glm(Direction~sqrt(abs(Lag2)),data = train_data, family = "binomial")
+summary(glm_fit_sqrt)
+
+pred_glm_fit_sqrt <- predict(glm_fit_sqrt, newdata = test_data , type = 'response')
+pred_glm_fit_sqrt <- ifelse(pred_glm_fit_sqrt >= 0.5 , 'Up', 'Down')
+
+conf_matrix_glm_sqrt <- table(pred_glm_fit_sqrt , test_data$Direction)
+accuracy_logisitic_glm_sqrt <- sum(diag(conf_matrix_glm_sqrt))/sum(conf_matrix_glm_sqrt)
+
+accuracy_logisitic_glm_sqrt
+```
+```{r exp_4, echo=TRUE}
+
+# Interaction Effect
+glm_fit_int <- glm(Direction~ Lag2*Lag1,data = train_data, family = "binomial")
+summary(glm_fit_int)
+
+pred_glm_fit_int <- predict(glm_fit_int, newdata = test_data , type = 'response')
+pred_glm_fit_int <- ifelse(pred_glm_fit_int >= 0.5 , 'Up', 'Down')
+
+conf_matrix_glm_int <- table(pred_glm_fit_int , test_data$Direction)
+accuracy_logisitic_glm_int <- sum(diag(conf_matrix_glm_int))/sum(conf_matrix_glm_int)
+
+accuracy_logisitic_glm_int
+```
+
+```{r exp_3 , echo=TRUE}
+str(train_data)
+
+train_knn_X <- data.frame(train_data[,3])
+train_knn_Y <- data.frame(train_data[,9])
+
+dim(train_knn_X)
+dim(train_knn_Y)
+
+test_knn_X <- data.frame(test_data[,3])
+test_knn_Y <- data.frame(test_data[,9])
+
+dim(test_knn_X)
+dim(test_knn_Y)
+
+errors <- c()
+maxK <- 100
+step_k <- 4
+
+for(j in seq(1,maxK,step_k)){
+  knn_run <- knn(train = data.frame(train_data$Lag2), test = data.frame(test_data$Lag2), cl = train_data$Direction,k = j)
+  pred <- table(knn_run,test_data$Direction)
+  acc <- sum(diag(pred))/sum(pred)
+  errors <- c(1-acc , errors)
+}
+
+data <- cbind(seq(1,maxK,step_k),errors)
+
+plot(data,type="l",xlab="k")
+```
